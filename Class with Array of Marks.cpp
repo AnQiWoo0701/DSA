@@ -22,11 +22,11 @@ class Student{
         }
 
         double calculateTotal(){
-            return marks[0] + marks[1] + marks[2];
+            return marks[0] + marks[1] + marks[2]; // Calculate total marks
         }
 
         double calculateAverage(){
-            return calculateTotal() / 3;
+            return calculateTotal() / 3; // Calculate average marks
         }
 
         void displayData(){
