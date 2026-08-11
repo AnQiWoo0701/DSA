@@ -1,5 +1,24 @@
+/*
+    C++ Activity: Number Guessing Game
+    -----------------------------------
+    This program implements the GuessingGame class as required by the
+    assignment. It demonstrates:
+        - Default and parameterized constructors
+        - Array storage of secret numbers (one per difficulty level)
+        - switch-case for menu selection
+        - Loops and conditional statements for the guessing logic
+        - A simple scoring system
+
+    Class: GuessingGame
+    Private members : playerName, secretNumbers[3], score
+    Public members   : constructors + displayMenu(), startGame(),
+                        checkGuess(), displayScore()
+*/
+
 #include <iostream>
 #include <string>
+#include <cstdlib>   // for rand()
+#include <chrono>    // for high-resolution seeding
 using namespace std;
 
 class GuessingGame {
@@ -10,25 +29,30 @@ private:
 
 public:
     // ---------- Default Constructor ----------
-    // Used when no player name is given. Sets a default name and
-    // fixed secret numbers, and starts the score at 0.
+    // Used when no player name is given. Sets a default name,
+    // randomly generates the secret numbers, and starts the score at 0.
     GuessingGame() {
         playerName = "Player";
-        secretNumbers[0] = 7;    // Easy   (1-10)
-        secretNumbers[1] = 35;   // Medium (1-50)
-        secretNumbers[2] = 82;   // Hard   (1-100)
+        generateSecretNumbers();
         score = 0;
     }
 
     // ---------- Parameterized Constructor ----------
-    // Lets the caller set the player's name while keeping the same
-    // secret numbers and an initial score of 0.
+    // Lets the caller set the player's name, randomly generates the
+    // secret numbers, and starts the score at 0.
     GuessingGame(string name) {
         playerName = name;
-        secretNumbers[0] = 7;
-        secretNumbers[1] = 35;
-        secretNumbers[2] = 82;
+        generateSecretNumbers();
         score = 0;
+    }
+
+    // ---------- generateSecretNumbers() ----------
+    // Randomly picks one secret number for each difficulty level,
+    // within that level's range, and stores them in the array.
+    void generateSecretNumbers() {
+        secretNumbers[0] = rand() % 10 + 1;    // Easy   (1-10)
+        secretNumbers[1] = rand() % 50 + 1;    // Medium (1-50)
+        secretNumbers[2] = rand() % 100 + 1;   // Hard   (1-100)
     }
 
     // ---------- displayMenu() ----------
@@ -65,6 +89,11 @@ public:
     // level: 1 = Easy, 2 = Medium, 3 = Hard
     void startGame(int level) {
         int minRange, maxRange, attempts, points;
+
+        // Re-roll the secret numbers each time a round starts, so
+        // replaying the same level within one run gives a fresh number
+        // instead of reusing the one generated when the object was made.
+        generateSecretNumbers();
         int secret = secretNumbers[level - 1]; // array index 0,1,2
 
         // Set the range, number of attempts, and reward points
@@ -130,6 +159,12 @@ public:
 
 // ---------------- main() ----------------
 int main() {
+    // Seed with nanosecond precision so quick, back-to-back runs
+    // still get different random numbers (time(0) alone only has
+    // 1-second resolution, so fast reruns could repeat the same seed).
+    unsigned seed = chrono::high_resolution_clock::now().time_since_epoch().count();
+    srand(seed);
+
     string name;
     cout << "Enter your name: ";
     cin >> name;
